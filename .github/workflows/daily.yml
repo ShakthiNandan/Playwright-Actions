@@ -2,8 +2,8 @@ name: Daily Playwright Screenshot Email
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # every day at 9 AM UTC
-  workflow_dispatch:       # allow manual trigger
+    - cron: "0 9 * * *"   # runs every day at 9 AM UTC
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -17,11 +17,24 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+          cache: 'pip'   # ✅ cache pip dependencies
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install --with-deps
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright
+          restore-keys: |
+            ${{ runner.os }}-playwright
+
+      - name: Install Playwright browsers (if cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: playwright install --with-deps
 
       - name: Run Playwright Script
         env:
