@@ -1,14 +1,16 @@
 # This script takes a screenshot of a webpage using Playwright and sends it as an email attachment
+
 import asyncio
 from playwright.async_api import async_playwright
 import smtplib
 from email.message import EmailMessage
+import os
 
 
 # Click 'Continue shopping' button, take screenshot
 async def click_and_screenshot(url, screenshot_path):
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True, args=["--no-sandbox"])
         page = await browser.new_page()
         await page.goto(url)
         try:
@@ -38,9 +40,15 @@ if __name__ == "__main__":
     # --- CONFIGURE THESE ---
     url = "https://amzn.in/d/dCKX9cU"  # The page to load
     screenshot_path = "screenshot.png"
-    sender = "shakthinandanp0712@gmail.com"      # Your email address
-    password = "tbrw gwdp falc zzcr"       # Your email app password
-    receiver = "shakthinandanp0712@gmail.com"  # Recipient's email address
+    sender = os.environ.get("SENDER_EMAIL")
+    receiver = os.environ.get("RECEIVER_EMAIL")
+    password = os.environ.get("EMAIL_APP_PASSWORD")
+    if not sender:
+        raise ValueError("SENDER_EMAIL environment variable not set.")
+    if not receiver:
+        raise ValueError("RECEIVER_EMAIL environment variable not set.")
+    if not password:
+        raise ValueError("EMAIL_APP_PASSWORD environment variable not set.")
     subject = "Watch Today Price"
     body = "Fasttrack Watch Today Price" 
 
