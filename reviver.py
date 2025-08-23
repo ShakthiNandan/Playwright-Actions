@@ -91,7 +91,7 @@ if __name__ == "__main__":
             index = None
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         submit_multiple_logins(page, credentials, index=index)
         browser.close()
