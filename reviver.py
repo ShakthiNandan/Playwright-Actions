@@ -28,21 +28,14 @@ from playwright.sync_api import Page, expect
 
 def test_example(page: Page,username,password) -> None:
     page.goto("https://www.pythonanywhere.com/")
-    page.wait_for_selector('[role="link"][name="Log in"]', timeout=10000)
     page.get_by_role("link", name="Log in").click()
-    page.wait_for_selector('[role="textbox"][name="Username or email address"]', timeout=10000)
     page.get_by_role("textbox", name="Username or email address").click()
     page.get_by_role("textbox", name="Username or email address").fill(username)
-    page.wait_for_selector('[role="textbox"][name="Password"]', timeout=10000)
     page.get_by_role("textbox", name="Password").click()
     page.get_by_role("textbox", name="Password").fill(password)
-    page.wait_for_selector('[role="button"][name="Log in"]', timeout=10000)
     page.get_by_role("button", name="Log in").click()
-    page.wait_for_selector('[role="link"][name="Web"]', timeout=10000)
     page.get_by_role("link", name="Web", exact=True).click()
-    page.wait_for_selector('[role="button"][name="Run until 3 months from today"]', timeout=10000)
     page.get_by_role("button", name="Run until 3 months from today").click()
-    page.wait_for_selector('[role="button"][name="Log out"]', timeout=10000)
     page.get_by_role("button", name="Log out").click()
 
 
@@ -85,7 +78,7 @@ if __name__ == "__main__":
             index = None
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=False)
         page = browser.new_page()
         submit_multiple_logins(page, credentials, index=index)
         browser.close()
