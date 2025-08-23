@@ -1,5 +1,18 @@
 # Function to read credentials from a CSV or TXT file
 import csv
+
+"""
+Commands in windows to convert csv
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("credentials.csv"))
+linux
+base64 -w 0 credentials.csv
+
+to run the reviver for just 1 entry
+$env:CREDENTIAL_INDEX=1; python reviver.py
+(or)
+python reviver.py 1
+
+"""
 def read_credentials_from_file(filepath: str) -> list:
     """
     Reads a file containing username and password pairs.
