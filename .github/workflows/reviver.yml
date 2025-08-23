@@ -1,0 +1,32 @@
+name: PythonAnywhere Reviver
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: '30 18 1 * *'  # Runs monthly at midnight IST on the 1st (18:30 UTC)
+
+jobs:
+  run-reviver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          playwright install chromium
+
+      - name: Write credentials file from secret
+        run: echo "$CREDENTIALS_B64" | base64 -d > credentials.csv
+        env:
+          CREDENTIALS_B64: ${{ secrets.CREDENTIALS_B64 }}
+
+      - name: Run reviver script
+        run: python reviver.py
