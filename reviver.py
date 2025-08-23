@@ -38,6 +38,7 @@ def test_example(page: Page,username,password) -> None:
     page.get_by_role("button", name="Run until 3 months from today").click()
     page.get_by_role("button", name="Log out").click()
 
+
 # Function to loop through a list of username/password pairs and submit them
 def submit_multiple_logins(page: Page, credentials: list, index: int = None):
     """
@@ -48,7 +49,36 @@ def submit_multiple_logins(page: Page, credentials: list, index: int = None):
         # Use only the credential at the specified index
         username, password = credentials[index]
         test_example(page, username, password)
+        print(f"Login successful for: {username}")
     else:
         # Use all credentials
         for username, password in credentials:
             test_example(page, username, password)
+            print(f"Login successful for: {username}")
+
+
+if __name__ == "__main__":
+    import os
+    import sys
+    from playwright.sync_api import sync_playwright
+
+    credentials = read_credentials_from_file("credentials.csv")
+
+    # Optional: allow index to be specified via command line or environment variable
+    index = None
+    if len(sys.argv) > 1:
+        try:
+            index = int(sys.argv[1])
+        except Exception:
+            index = None
+    elif os.environ.get("CREDENTIAL_INDEX"):
+        try:
+            index = int(os.environ["CREDENTIAL_INDEX"])
+        except Exception:
+            index = None
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        submit_multiple_logins(page, credentials, index=index)
+        browser.close()
