@@ -17,11 +17,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install dependencies (skip if already available)
         run: |
-          python -m pip install --upgrade pip
-          pip install playwright
-          playwright install chromium
+          if [ ! -d ".venv" ]; then python -m venv .venv; fi
+          source .venv/bin/activate
+          python -c "import playwright" 2>/dev/null || pip install playwright
+          [ -d .venv/playwright-browsers ] || playwright install chromium
+          deactivate
 
       - name: Write credentials file from secret
         run: echo "$CREDENTIALS_B64" | base64 -d > credentials.csv

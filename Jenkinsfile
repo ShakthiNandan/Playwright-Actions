@@ -12,10 +12,12 @@ pipeline {
         }
         stage('Set up Python') {
             steps {
-                sh 'python3 -m venv venv'
-                sh '. venv/bin/activate && pip install --upgrade pip'
-                sh '. venv/bin/activate && pip install playwright'
-                sh '. venv/bin/activate && playwright install chromium'
+                // Create venv only if it doesn't exist
+                sh '[ -d venv ] || python3 -m venv venv'
+                // Install pip dependencies only if not already installed
+                sh '. venv/bin/activate && python -c "import playwright" 2>/dev/null || pip install playwright'
+                // Install Playwright browsers only if not already installed
+                sh '. venv/bin/activate && [ -d venv/playwright-browsers ] || playwright install chromium'
             }
         }
         stage('Restore credentials file') {
