@@ -1,29 +1,39 @@
 name: PythonAnywhere Reviver
 
 on:
-  workflow_dispatch:
   schedule:
-  - cron: '30 18 1 * *'  # Runs monthly at midnight IST on the 1st (18:30 UTC)
+    - cron: '30 18 1 * *'  # Runs monthly at midnight IST (18:30 UTC)
+  workflow_dispatch:
 
 jobs:
   run-reviver:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
-      - name: Install dependencies (skip if already available)
+      - name: Install dependencies
         run: |
-          if [ ! -d ".venv" ]; then python -m venv .venv; fi
-          source .venv/bin/activate
-          python -c "import playwright" 2>/dev/null || pip install playwright
-          [ -d .venv/playwright-browsers ] || playwright install chromium
-          deactivate
+          pip install playwright
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright
+          restore-keys: |
+            ${{ runner.os }}-playwright
+
+      - name: Install Playwright browsers (if cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: playwright install chromium
 
       - name: Write credentials file from secret
         run: echo "$CREDENTIALS_B64" | base64 -d > credentials.csv
