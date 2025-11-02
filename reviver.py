@@ -1,6 +1,7 @@
 # Function to read credentials from a CSV or TXT file
 import csv
 
+
 """
 Commands in windows to convert csv
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("credentials.csv"))
